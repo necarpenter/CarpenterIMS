@@ -13,8 +13,4 @@ class User(Base):
     __tablename__ = "User"
     Email = Column(String(255), primary_key=True)
     Password = Column(String(255))
-    def __init__(self, email, pwd):
         
-    @hybridproperty
-    def checkPwd(self, pwd):
-        return PasswordUtil.checkPassword(pwd, self.Password)
