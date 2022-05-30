@@ -5,7 +5,7 @@ import json
 
 
 
-credsfile = open('dbcreds.json')
+credsfile = open('./core/dbcreds.json')
 creds = json.load(credsfile)
 engine = create_engine(f"{creds['engine']}://{creds['username']}:{creds['password']}@{creds['host']}/{creds['database']}?charset={creds['charset']}")
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

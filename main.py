@@ -5,18 +5,22 @@ from sqlalchemy.orm import Session
 from fastapi.responses import HTMLResponse
 import json
 from fastapi.templating import Jinja2Templates
-from LoginForm import LoginForm
-templates = Jinja2Templates(directory="templates")
-from database  import SessionLocal, engine
+from webapp.LoginForm import LoginForm
+from webapp.ProductForm import ProductForm
+from core.database import SessionLocal, engine
 from fastapi.responses import JSONResponse
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
-import security
+import core.security
 from pydantic import BaseModel
-
+from core.security import *
+import core.crud as crud
 # Dependency
 
+templates = Jinja2Templates(directory="templates")
+
 app = FastAPI()
+
 
 def get_db():
     try:
@@ -25,6 +29,7 @@ def get_db():
     finally:
         db.close()
 
+
 class Settings(BaseModel):
     authjwt_secret_key: str = "secret"
     # Configure application to store and get JWT from cookies
@@ -32,9 +37,11 @@ class Settings(BaseModel):
     # Disable CSRF Protection for this example. default is True
     authjwt_cookie_csrf_protect: bool = False
 
+
 @AuthJWT.load_config
 def get_config():
     return Settings()
+
 
 @app.exception_handler(AuthJWTException)
 def authjwt_exception_handler(request: Request, exc: AuthJWTException):
@@ -43,13 +50,16 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
         content={"detail": exc.message}
     )
 
+
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request, "id": '1234'})
+    return templates.TemplateResponse("index.html", {"request": request})
+
 
 @app.get("/login")
 async def login(request: Request):
-        return templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse("login.html", {"request": request})
+
 
 @app.post("/login")
 async def login(request: Request, db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
@@ -62,10 +72,10 @@ async def login(request: Request, db: Session = Depends(get_db), Authorize: Auth
 
             response = templates.TemplateResponse("login.html", form.__dict__)
 
-            access_token, refresh_token  = security.attempt_login(form, db, Authorize) 
+            access_token, refresh_token = attempt_login(form, db, Authorize)
             response.set_cookie(
                 key="access_token_cookie", value=f"{access_token}", httponly=True
-            )      
+            )
 
             return response
         except HTTPException:
@@ -74,9 +84,60 @@ async def login(request: Request, db: Session = Depends(get_db), Authorize: Auth
             return templates.TemplateResponse("login.html", form.__dict__)
     return templates.TemplateResponse("login.html", form.__dict__)
 
-@app.get('/user')
-def user(Authorize: AuthJWT = Depends()):
+
+@app.get('/products')
+def user(request: Request, Authorize: AuthJWT = Depends(), db: Session = Depends(get_db)):
     Authorize.jwt_required()
 
     current_user = Authorize.get_jwt_subject()
-    return {"user": current_user}
+    products = crud.get_products(db)
+    return templates.TemplateResponse("producttable.html", {"request": request, "products": products})
+
+
+@app.get('/productsitems')
+def user(request: Request, productId: int = 0, Authorize: AuthJWT = Depends(), db: Session = Depends(get_db)):
+    Authorize.jwt_required()
+
+    current_user = Authorize.get_jwt_subject()
+    items = crud.get_productItems(
+        db) if productId == -1 else crud.get_productItems(db, productId)
+    print(items)
+    return templates.TemplateResponse("productitemtable.html", {"request": request, "items": items})
+
+
+@app.get('/editproduct')
+async def user(request: Request, productId: int = 0, Authorize: AuthJWT = Depends(), db: Session = Depends(get_db)):
+    Authorize.jwt_required()
+    current_user = Authorize.get_jwt_subject()
+    if(productId == 0):
+        return templates.TemplateResponse("productedit.html",  {"request": request})
+    else:
+        form = ProductForm(request)
+        await form.load_data_with_product(crud.get_product(db, productId))
+        return templates.TemplateResponse("productedit.html",  form.__dict__)
+
+
+@app.post('/editproduct')
+async def user(request: Request, Authorize: AuthJWT = Depends(), db: Session = Depends(get_db)):
+    print('in edit product')
+    Authorize.jwt_required()
+    current_user = Authorize.get_jwt_subject()
+
+    form = ProductForm(request)
+    await form.load_data()
+    if await form.is_valid():
+        try:
+            form.__dict__.update(msg="Save Successful")
+
+            response = templates.TemplateResponse(
+                "productedit.html", form.__dict__)
+
+            await form.saveProduct(db)
+            crud.commitWork(db)
+
+            return response
+        except HTTPException:
+            form.__dict__.update(msg="")
+            form.__dict__.get("errors").append("Missing Name or UPC")
+            return templates.TemplateResponse("productedit.html", form.__dict__)
+    return templates.TemplateResponse("productedit.html", form.__dict__)

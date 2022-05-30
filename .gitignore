@@ -2,3 +2,4 @@ vnv
 dbcreds.json
 __pycache__
 dbtest.py
+.vscode/*

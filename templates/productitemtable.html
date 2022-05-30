@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<table id="data" class="table table-striped">
+  <thead>
+    <tr>
+      <th>Product</th>
+      <th>QTY</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in items %}
+      <tr>
+        <td>{{ item.Name }}</td>
+        <td><input type="number" value="{{ item.Qty }}"></input></td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

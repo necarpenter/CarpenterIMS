@@ -3,7 +3,7 @@ from typing import Optional
 from sqlalchemy import false, true
 
 from fastapi import Request
-import crud
+import core.crud as crud
 
 class LoginForm:
     def __init__(self, request: Request):

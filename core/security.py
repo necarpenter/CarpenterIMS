@@ -1,4 +1,4 @@
-import crud
+from core.crud import *
 from datetime import timedelta, datetime
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
@@ -11,7 +11,7 @@ def attempt_login(form, db, Authorize):
     Assumes basic form validation has already occurred."""
     email = form.username
     pwd = form.password
-    foundUser = crud.get_user(db, email)
+    foundUser = get_user(db, email)
     if not foundUser:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
