@@ -101,7 +101,6 @@ def user(request: Request, productId: int = 0, Authorize: AuthJWT = Depends(), d
     current_user = Authorize.get_jwt_subject()
     items = crud.get_productItems(
         db) if productId == -1 else crud.get_productItems(db, productId)
-    print(items)
     return templates.TemplateResponse("productitemtable.html", {"request": request, "items": items})
 
 
@@ -119,7 +118,6 @@ async def user(request: Request, productId: int = 0, Authorize: AuthJWT = Depend
 
 @app.post('/editproduct')
 async def user(request: Request, Authorize: AuthJWT = Depends(), db: Session = Depends(get_db)):
-    print('in edit product')
     Authorize.jwt_required()
     current_user = Authorize.get_jwt_subject()
 
