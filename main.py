@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 from fastapi.responses import HTMLResponse
 import json
 from fastapi.templating import Jinja2Templates
-from webapp.LoginForm import LoginForm
-from webapp.ProductForm import ProductForm
+from webapp.loginform import LoginForm
+from webapp.productform import ProductForm
 from core.database import SessionLocal, engine
 from fastapi.responses import JSONResponse
 from fastapi_jwt_auth import AuthJWT
