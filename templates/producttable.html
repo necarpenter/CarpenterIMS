@@ -1,69 +1,54 @@
 {% extends "basewithmenu.html" %}
 
 {% block content %}
-    <table id="data" class="table table-striped">
-        <thead>
+<table id="data" class="table table-striped">
+    <thead>
         <tr>
             <th>Actions</th>
             <th>Name</th>
             <th>UPC</th>
         </tr>
-        </thead>
-        <tbody>
+    </thead>
+    <tbody>
         {% for product in products %}
-            <tr onClick="loadItemFrame('{{ product.Id }}', '{{ product.Name }}')" data-bs-toggle="modal" data-bs-target="#itemsModal">
-                
-                <td> <i class="bi bi-pencil-square" onClick="loadItemFrame('{{ product.Id }}', '{{ product.Name }}')" data-bs-toggle="modal" data-bs-target="#itemEditModal"></i> </td>
-                <td>{{ product.Name }}</td>
-                <td>{{ product.UPC }}</td>
-            </tr>
+        <tr>
+            <td> <i class="bi bi-pencil-square" onClick="loadItemEditFrame('{{ product.Id }}', '{{ product.Name }}')"
+                    data-bs-toggle="modal" data-bs-target="#frameModal"></i> </td>
+            <td onClick="loadItemsFrame('{{ product.Id }}', '{{ product.Name }}')" data-bs-toggle="modal"
+            data-bs-target="#frameModal">{{ product.Name }}</td>
+            <td onClick="loadItemsFrame('{{ product.Id }}', '{{ product.Name }}')" data-bs-toggle="modal"
+            data-bs-target="#frameModal">{{ product.UPC }}</td>
+        </tr>
         {% endfor %}
-        </tbody>
-    </table>
-        
-    <div class="modal fade" id="itemsModal" tabindex="-1" aria-labelledby="itemsModal" aria-hidden="true">
-        <div class="modal-dialog">
+    </tbody>
+</table>
+
+<div class="modal fade" id="frameModal" tabindex="-1" aria-labelledby="frameModal" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-            <h5 class="modal-title" id="itemsModalTitle">Modal title</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" id="frameModalTitle">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <iframe id='itemframe' src="" style="width:100%;border:none"></iframe>
+                <iframe id='modalFrame' src="" class="modal-frame"></iframe>
             </div>
-            <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
-        </div>
         </div>
     </div>
-        
-    <div class="modal fade" id="itemEditModal" tabindex="-1" aria-labelledby="itemEditModal" aria-hidden="true">
-        <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-            <h5 class="modal-title" id="editModalTitle">Modal title</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <iframe id='itemeditframe' src="" style="width:100%;border:none"></iframe>
-            </div>
-            <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
-        </div>
-        </div>
-    </div>
+</div>
 
 
 <script>
-    function loadItemFrame(prodId, prodName){
-        document.getElementById('itemframe').src='productsitems?productId='+prodId;
-        document.getElementById('itemeditframe').src='editproduct?productId='+prodId;
-        document.getElementById('itemsModalTitle').innerHTML='<b>Product Items:</b> '+prodName;
-        document.getElementById('editModalTitle').innerHTML='<b>Product Item:</b> '+prodName;
+    function loadItemsFrame(prodId, prodName) {
+        document.getElementById('modalFrame').src = 'productsitems?productId=' + prodId;
+        document.getElementById('frameModalTitle').innerHTML = '<b>Product Item:</b> ' + prodName;
     }
+
+    function loadItemEditFrame(prodId, prodName) {
+        document.getElementById('modalFrame').src = 'editproduct?productId=' + prodId;
+        document.getElementById('frameModalTitle').innerHTML = '<b>Product Item:</b> ' + prodName;
+    }
+    
+    
 </script>
 {% endblock %}

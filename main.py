@@ -11,6 +11,7 @@ from core.database import SessionLocal, engine
 from fastapi.responses import JSONResponse
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
+from fastapi.staticfiles import StaticFiles
 import core.security
 from pydantic import BaseModel
 from core.security import *
@@ -19,7 +20,9 @@ import core.crud as crud
 
 templates = Jinja2Templates(directory="templates")
 
+
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="templates"), name="static")
 
 
 def get_db():

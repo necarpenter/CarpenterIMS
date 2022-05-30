@@ -42,7 +42,7 @@ class ProductForm:
         return False
 
     async def saveProduct(self, db: Session):
-        prod: Product = crud.get_product(db, self.id)
+        prod: Product = crud.get_product(db, self.id) if self.id else Product()
         prod.Name = self.name
         prod.UPC = self.upc
         db.add(prod)
